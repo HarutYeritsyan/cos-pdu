@@ -7,6 +7,7 @@ usage(){
 	echo "-n x: La salida x [1-8]" >&2
 	echo "-f x: Desde la salida x [1-8]" >&2
 	echo "–l y: Hasta la salida y [1-8]" >&2
+	echo "–w: Espera 2s entre ejecuciones" >&2
 	echo "-h: Este texto de ayuda" >&2
 }
 
@@ -27,7 +28,7 @@ MAX_OUTPUT_NUMBER=8
 FIRST_OUTPUT_NUMBER=$MIN_OUTPUT_NUMBER
 LAST_OUTPUT_NUMBER=$MAX_OUTPUT_NUMBER
 
-while getopts "10an:f:l:h" opt; do
+while getopts "10an:f:l:wh" opt; do
 	case $opt in
 		1)
 			COMMAND=1
@@ -40,26 +41,37 @@ while getopts "10an:f:l:h" opt; do
 			LAST_OUTPUT_NUMBER=$MAX_OUTPUT_NUMBER
 			;;
 		n)
-			if [ $OPTARG -ge $MIN_OUTPUT_NUMBER ] && [ $OPTARG -le $MAX_OUTPUT_NUMBER ]; then
+			if [ $OPTARG -lt $MIN_OUTPUT_NUMBER ]; then
+				FIRST_OUTPUT_NUMBER=$MIN_OUTPUT_NUMBER
+				LAST_OUTPUT_NUMBER=$MIN_OUTPUT_NUMBER
+			elif [ $OPTARG -gt $MAX_OUTPUT_NUMBER ]; then
+				FIRST_OUTPUT_NUMBER=$MAX_OUTPUT_NUMBER
+				LAST_OUTPUT_NUMBER=$MAX_OUTPUT_NUMBER
+			else
 				FIRST_OUTPUT_NUMBER=$OPTARG
 				LAST_OUTPUT_NUMBER=$OPTARG
-			else
-				ERROR="x fuera de rango"
 			fi
 			;;
 		f)
-			if [ $OPTARG -ge $MIN_OUTPUT_NUMBER ]; then
-				FIRST_OUTPUT_NUMBER=$OPTARG
-			else
+			if [ $OPTARG -lt $MIN_OUTPUT_NUMBER ]; then
 				FIRST_OUTPUT_NUMBER=$MIN_OUTPUT_NUMBER
+			elif [ $OPTARG -gt $MAX_OUTPUT_NUMBER ]; then
+				FIRST_OUTPUT_NUMBER=$MAX_OUTPUT_NUMBER
+			else
+				FIRST_OUTPUT_NUMBER=$OPTARG
 			fi
             ;;
 		l)
-			if [ $OPTARG -le $MAX_OUTPUT_NUMBER ]; then
-				LAST_OUTPUT_NUMBER=$OPTARG
-			else
+			if [ $OPTARG -lt $MIN_OUTPUT_NUMBER ]; then
+				LAST_OUTPUT_NUMBER=$MIN_OUTPUT_NUMBER
+			elif [ $OPTARG -gt $MAX_OUTPUT_NUMBER ]; then
 				LAST_OUTPUT_NUMBER=$MAX_OUTPUT_NUMBER
+			else
+				LAST_OUTPUT_NUMBER=$OPTARG
 			fi
+            ;;
+		w)
+			WAIT_BETWEEN_EXECUTIONS=1
             ;;
 		h)
             $(usage)
@@ -92,7 +104,7 @@ fi
 if [ $FIRST_OUTPUT_NUMBER -eq $LAST_OUTPUT_NUMBER ]; then
 	echo "$FIRST_OUTPUT_NUMBER"
 elif [ $FIRST_OUTPUT_NUMBER -gt $LAST_OUTPUT_NUMBER ]; then
-	$(swap_first_last_output_number)
+	swap_first_last_output_number
 	echo "$FIRST_OUTPUT_NUMBER - $LAST_OUTPUT_NUMBER"
 else
 	echo "$FIRST_OUTPUT_NUMBER - $LAST_OUTPUT_NUMBER"
@@ -100,5 +112,10 @@ fi
 
 for OUTPUT_NUMBER in $(seq $FIRST_OUTPUT_NUMBER $LAST_OUTPUT_NUMBER)
 do
-	get_executable_command "$OUTPUT_NUMBER"
+	EXECUTABLE_COMMAND="$(get_executable_command $OUTPUT_NUMBER)"
+	if [ -n "$WAIT_BETWEEN_EXECUTIONS" ]; then
+		{ printf $EXECUTABLE_COMMAND; sleep 2; }
+	else
+		{ printf $EXECUTABLE_COMMAND; }
+	fi	
 done
