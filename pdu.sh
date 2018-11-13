@@ -114,8 +114,8 @@ for OUTPUT_NUMBER in $(seq $FIRST_OUTPUT_NUMBER $LAST_OUTPUT_NUMBER)
 do
 	EXECUTABLE_COMMAND="$(get_executable_command $OUTPUT_NUMBER)"
 	if [ -n "$WAIT_BETWEEN_EXECUTIONS" ]; then
-		{ printf $EXECUTABLE_COMMAND; sleep 2; }
+		{ printf $EXECUTABLE_COMMAND; sleep 2; } | telnet pdujupiter.disca.upv.es
 	else
-		{ printf $EXECUTABLE_COMMAND; }
+		{ printf $EXECUTABLE_COMMAND; } | telnet pdujupiter.disca.upv.es
 	fi	
 done
