@@ -10,6 +10,17 @@ usage(){
 	echo "-h: Este texto de ayuda" >&2
 }
 
+swap_first_last_output_number(){
+	AUX_OUTPUT_NUMBER=$FIRST_OUTPUT_NUMBER
+	FIRST_OUTPUT_NUMBER=$LAST_OUTPUT_NUMBER
+	LAST_OUTPUT_NUMBER=$AUX_OUTPUT_NUMBER
+}
+
+get_executable_command(){
+	local OUTPUT_NUMBER=$1
+	echo "practica\ncos\n1\n$OUTPUT_NUMBER\n$COMMAND\nyes\n\n\033\0334\n"
+}
+
 MIN_OUTPUT_NUMBER=1
 MAX_OUTPUT_NUMBER=8
 
@@ -81,7 +92,13 @@ fi
 if [ $FIRST_OUTPUT_NUMBER -eq $LAST_OUTPUT_NUMBER ]; then
 	echo "$FIRST_OUTPUT_NUMBER"
 elif [ $FIRST_OUTPUT_NUMBER -gt $LAST_OUTPUT_NUMBER ]; then
-	echo "$LAST_OUTPUT_NUMBER - $FIRST_OUTPUT_NUMBER"
+	$(swap_first_last_output_number)
+	echo "$FIRST_OUTPUT_NUMBER - $LAST_OUTPUT_NUMBER"
 else
 	echo "$FIRST_OUTPUT_NUMBER - $LAST_OUTPUT_NUMBER"
 fi
+
+for OUTPUT_NUMBER in $(seq $FIRST_OUTPUT_NUMBER $LAST_OUTPUT_NUMBER)
+do
+	get_executable_command "$OUTPUT_NUMBER"
+done
