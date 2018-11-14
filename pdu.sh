@@ -7,7 +7,7 @@ usage(){
 	echo "-n x: La salida x [1-8]" >&2
 	echo "-f x: Desde la salida x [1-8]" >&2
 	echo "–l y: Hasta la salida y [1-8]" >&2
-	echo "–w: Espera 2s entre ejecuciones" >&2
+	echo "–w x: Espera x segundos entre lanzamientos" >&2
 	echo "-h: Este texto de ayuda" >&2
 }
 
@@ -28,7 +28,7 @@ MAX_OUTPUT_NUMBER=8
 FIRST_OUTPUT_NUMBER=$MIN_OUTPUT_NUMBER
 LAST_OUTPUT_NUMBER=$MAX_OUTPUT_NUMBER
 
-while getopts "10an:f:l:wh" opt; do
+while getopts "10an:f:l:w:h" opt; do
 	case $opt in
 		1)
 			COMMAND=1
@@ -71,7 +71,7 @@ while getopts "10an:f:l:wh" opt; do
 			fi
             ;;
 		w)
-			WAIT_BETWEEN_EXECUTIONS=1
+			WAIT_BETWEEN_EXECUTIONS=$OPTARG
             ;;
 		h)
             $(usage)
@@ -114,7 +114,7 @@ for OUTPUT_NUMBER in $(seq $FIRST_OUTPUT_NUMBER $LAST_OUTPUT_NUMBER)
 do
 	EXECUTABLE_COMMAND="$(get_executable_command $OUTPUT_NUMBER)"
 	if [ -n "$WAIT_BETWEEN_EXECUTIONS" ]; then
-		{ printf $EXECUTABLE_COMMAND; sleep 2; } | telnet pdujupiter.disca.upv.es
+		{ printf $EXECUTABLE_COMMAND; sleep $WAIT_BETWEEN_EXECUTIONS; } | telnet pdujupiter.disca.upv.es
 	else
 		{ printf $EXECUTABLE_COMMAND; } | telnet pdujupiter.disca.upv.es
 	fi	
