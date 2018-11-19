@@ -34,7 +34,7 @@ while getopts "10an:f:l:w:h" opt; do
 			COMMAND=1
 			;;
 		0)
-			COMMAND=0
+			COMMAND=2
 			;;
 		a)
 			FIRST_OUTPUT_NUMBER=$MIN_OUTPUT_NUMBER
